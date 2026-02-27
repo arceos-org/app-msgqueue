@@ -1,6 +1,6 @@
 [package]
 name = "arceos-msgqueue"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2024"
 authors = ["Lei Shi <shi_lei@massclouds.com>", "Yu Chen <yuchen@tsinghua.edu.cn>"]
 description = "A message-queue crate (from crates.io) for ArceOS demonstrating cooperative multi-task scheduling with PFlash MMIO"
@@ -18,6 +18,7 @@ include = [
     "rust-toolchain.toml",
     "README.md",
     "LICENSE*",
+    "exercise/**",
 ]
 
 [features]
