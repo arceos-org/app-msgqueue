@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== ArceOS Helloworld Test Script ==="
+echo "=== ArceOS Childtask Test Script ==="
 echo ""
 
 # Check if required tools are installed
@@ -30,11 +30,35 @@ check_format() {
     echo ""
 }
 
-# Clippy lint check
+# Clippy lint check by architecture
 check_clippy() {
     echo "[3/7] Running clippy lint checks..."
-    cargo clippy -- -D warnings
-    echo "✓ Clippy check passed"
+    
+    local archs=("riscv64" "x86_64" "aarch64" "loongarch64")
+    local targets=("riscv64gc-unknown-none-elf" "x86_64-unknown-none" "aarch64-unknown-none-softfloat" "loongarch64-unknown-none")
+    
+    for i in "${!archs[@]}"; do
+        local arch="${archs[$i]}"
+        local target="${targets[$i]}"
+        
+        echo ""
+        echo "Running clippy for architecture: $arch"
+        
+        # Install config file for the architecture
+        cp "configs/${arch}.toml" ".axconfig.toml"
+        
+        if cargo clippy --features axstd --target="$target" -- -D warnings; then
+            echo "✓ $arch clippy check passed"
+        else
+            echo "Error: $arch clippy check failed"
+            rm -f .axconfig.toml
+            exit 1
+        fi
+    done
+    
+    rm -f .axconfig.toml
+    echo ""
+    echo "✓ All architecture clippy checks passed"
     echo ""
 }
 
@@ -81,11 +105,35 @@ run_arch_tests() {
     echo ""
 }
 
-# Publish dry-run check
+# Publish dry-run check by architecture
 check_publish() {
     echo "[6/7] Checking publish readiness..."
-    cargo publish --dry-run --allow-dirty
-    echo "✓ Publish check passed"
+    
+    local archs=("riscv64" "x86_64" "aarch64" "loongarch64")
+    local targets=("riscv64gc-unknown-none-elf" "x86_64-unknown-none" "aarch64-unknown-none-softfloat" "loongarch64-unknown-none")
+    
+    for i in "${!archs[@]}"; do
+        local arch="${archs[$i]}"
+        local target="${targets[$i]}"
+        
+        echo ""
+        echo "Checking publish for architecture: $arch"
+        
+        # Install config file for the architecture
+        cp "configs/${arch}.toml" ".axconfig.toml"
+        
+        if cargo publish --features axstd --dry-run --allow-dirty --target="$target"; then
+            echo "✓ $arch publish check passed"
+        else
+            echo "Error: $arch publish check failed"
+            rm -f .axconfig.toml
+            exit 1
+        fi
+    done
+    
+    rm -f .axconfig.toml
+    echo ""
+    echo "✓ All architecture publish checks passed"
     echo ""
 }
 
